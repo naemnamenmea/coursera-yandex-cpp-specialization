@@ -24,5 +24,6 @@ public:
 	int RemoveIf(const Predicate& predicate);
 
 private:
-	multimap<Date,string> db_;
+	multimap<Date, string> db_;
+	set<pair<Date, string>> db2_;
 };

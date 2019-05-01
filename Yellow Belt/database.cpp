@@ -1,17 +1,13 @@
 #include "database.h"
 
 void Database::Add(const Date& date, const string& event) {
-	auto it = this->db_.equal_range(date);
-	bool flag = true;
-	for (auto it2 = it.first; it2 != it.second; ++it2) {
-		if (it2->second == event) {
-			flag = false;
-			break;
-		}
-	}
-	if (flag) {
-		this->db_.insert({ date,event });
-	}
+	auto sit = this->db2_.find({ date,event });
+
+	if (sit != this->db2_.end())
+		return;
+
+	this->db_.insert({date,event});
+	this->db2_.insert({date,event});
 }
 
 void Database::Print(ostream& os) const {
@@ -47,6 +43,14 @@ int Database::RemoveIf(const Predicate& predicate)
 		if (predicate(it->first, it->second)) {
 			it = this->db_.erase(it);
 			++res;
+		}
+		else {
+			++it;
+		}
+	}
+	for (auto it = begin(this->db2_); it != end(this->db2_);) {
+		if (predicate(it->first, it->second)) {
+			it = this->db2_.erase(it);
 		}
 		else {
 			++it;
