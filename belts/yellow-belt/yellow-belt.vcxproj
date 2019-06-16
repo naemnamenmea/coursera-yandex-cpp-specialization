@@ -18,10 +18,29 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="week_6\course_project\condition_parser.cpp" />
+    <ClCompile Include="week_6\course_project\condition_parser_test.cpp" />
+    <ClCompile Include="week_6\course_project\database.cpp" />
+    <ClCompile Include="week_6\course_project\date.cpp" />
+    <ClCompile Include="week_6\course_project\main.cpp" />
+    <ClCompile Include="week_6\course_project\node.cpp" />
+    <ClCompile Include="week_6\course_project\tests.cpp" />
+    <ClCompile Include="week_6\course_project\token.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="week_6\course_project\condition_parser.h" />
+    <ClInclude Include="week_6\course_project\database.h" />
+    <ClInclude Include="week_6\course_project\date.h" />
+    <ClInclude Include="week_6\course_project\node.h" />
+    <ClInclude Include="week_6\course_project\tests.h" />
+    <ClInclude Include="week_6\course_project\test_runner.h" />
+    <ClInclude Include="week_6\course_project\token.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{EC0FC69B-16E3-4272-A663-C23DDAC5E654}</ProjectGuid>
-    <RootNamespace>YellowBelt</RootNamespace>
+    <ProjectGuid>{52112DB2-A9D7-465C-8E71-2CDF733798C0}</ProjectGuid>
+    <RootNamespace>yellowbelt</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -58,15 +77,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\YandexCourseraC++Specialization.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\YandexCourseraC++Specialization.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\YandexCourseraC++Specialization.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\YandexCourseraC++Specialization.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup />
@@ -76,7 +99,6 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <PreprocessorDefinitions>LOCAL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -123,30 +145,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="condition_parser.cpp" />
-    <ClCompile Include="condition_parser_test.cpp" />
-    <ClCompile Include="database.cpp" />
-    <ClCompile Include="date.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="node.cpp" />
-    <ClCompile Include="tests.cpp" />
-    <ClCompile Include="token.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="condition_parser.h" />
-    <ClInclude Include="database.h" />
-    <ClInclude Include="date.h" />
-    <ClInclude Include="node.h" />
-    <ClInclude Include="tests.h" />
-    <ClInclude Include="test_runner.h" />
-    <ClInclude Include="token.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="expected.txt" />
-    <Text Include="input.txt" />
-    <Text Include="output.txt" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
