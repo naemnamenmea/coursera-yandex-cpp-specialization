@@ -7,7 +7,6 @@
 #include <exception>
 #include <stdexcept>
 #include <set>
-#include <windows.h>
 
 using namespace std;
 

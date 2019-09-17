@@ -63,3 +63,5 @@ private:
 
 #define ADD_DURATION(value) \
   AddDuration UNIQ_ID(__LINE__) { value };
+
+istream& ReadLine(istream& input, string& s, TotalDuration& dest);

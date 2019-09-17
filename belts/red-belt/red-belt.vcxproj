@@ -19,12 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="week_2\sistiema-bronirovaniia-otieliei\main.cpp" />
+    <ClCompile Include="week_6\poiskovaia-sistiema\auxiliary.cpp" />
+    <ClCompile Include="week_6\poiskovaia-sistiema\main.cpp" />
+    <ClCompile Include="week_6\poiskovaia-sistiema\parse.cpp" />
+    <ClCompile Include="week_6\poiskovaia-sistiema\search_server.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="week_6\poiskovaia-sistiema\auxiliary.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\iterator_range.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\parse.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\search_server.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{E2408A11-03FC-4237-87CA-C3F28B022F30}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -82,6 +92,7 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>
     <Link>
       <TargetMachine>MachineX86</TargetMachine>
