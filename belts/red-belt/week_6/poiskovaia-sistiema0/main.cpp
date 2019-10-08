@@ -1,14 +1,7 @@
-#define WIN32_LEAN_AND_MEAN
-
 #include "search_server.h"
 #include "parse.h"
-#include "test_runner.h"
-#include "constraints.h"
-
-#ifdef LOCAL_LAUNCH
 #include "profile.h"
-#include <experimental/filesystem>
-#endif
+#include "test_runner.h"
 
 #include <algorithm>
 #include <iterator>
@@ -21,56 +14,31 @@
 #include <thread>
 using namespace std;
 
-#ifdef LOCAL_LAUNCH
-namespace fs = std::experimental::filesystem;
-#endif
-
-//void TestFunctionality(
-//  const vector<string>& docs,
-//  const vector<string>& queries,
-//  const vector<string>& expected
-//) {
-//  SearchServer srv;
-//  {
-//    LOG_DURATION("UpdateDocumentBase 100000 times: ");
-//    for (int i = 0; i < 10'000; ++i)
-//    {
-//      istringstream docs_input(Join('\n', docs));
-//      srv.UpdateDocumentBase(docs_input);
-//    }
-//  }
-//  ostringstream queries_output;
-//  {
-//    LOG_DURATION("AddQuiriesToStream 100000 times: ");
-//    for (int i = 0; i < 10'000; ++i)
-//    {
-//      ostringstream local_output;
-//      istringstream queries_input(Join('\n', queries));
-//      srv.AddQueriesStream(queries_input, local_output);
-//      queries_output = move(local_output);
-//    }
-//  }
-//  const string result = queries_output.str();
-//  const auto lines = SplitBy(Strip(result), '\n');
-//  ASSERT_EQUAL(lines.size(), expected.size());
-//  for (size_t i = 0; i < lines.size(); ++i) {
-//    ASSERT_EQUAL(lines[i], expected[i]);
-//  }
-//}
-
 void TestFunctionality(
   const vector<string>& docs,
   const vector<string>& queries,
   const vector<string>& expected
 ) {
-  istringstream docs_input(Join('\n', docs));
-  istringstream queries_input(Join('\n', queries));
-
   SearchServer srv;
-  srv.UpdateDocumentBase(docs_input);
+  {
+    LOG_DURATION("UpdateDocumentBase 100000 times: ");
+    for (int i = 0; i < 10'000; ++i)
+    {
+      istringstream docs_input(Join('\n', docs));
+      srv.UpdateDocumentBase(docs_input);
+    }
+  }
   ostringstream queries_output;
-  srv.AddQueriesStream(queries_input, queries_output);
-
+  {
+    LOG_DURATION("AddQuiriesToStream 100000 times: ");
+    for (int i = 0; i < 10'000; ++i)
+    {
+      ostringstream local_output;
+      istringstream queries_input(Join('\n', queries));
+      srv.AddQueriesStream(queries_input, local_output);
+      queries_output = move(local_output);
+    }
+  }
   const string result = queries_output.str();
   const auto lines = SplitBy(Strip(result), '\n');
   ASSERT_EQUAL(lines.size(), expected.size());
@@ -79,12 +47,33 @@ void TestFunctionality(
   }
 }
 
+//void TestFunctionality(
+//  const vector<string>& docs,
+//  const vector<string>& queries,
+//  const vector<string>& expected
+//) {
+//  istringstream docs_input(Join('\n', docs));
+//  istringstream queries_input(Join('\n', queries));
+//
+//  SearchServer srv;
+//  srv.UpdateDocumentBase(docs_input);
+//  ostringstream queries_output;
+//  srv.AddQueriesStream(queries_input, queries_output);
+//
+//  const string result = queries_output.str();
+//  const auto lines = SplitBy(Strip(result), '\n');
+//  ASSERT_EQUAL(lines.size(), expected.size());
+//  for (size_t i = 0; i < lines.size(); ++i) {
+//    ASSERT_EQUAL(lines[i], expected[i]);
+//  }
+//}
+
 void TestSerpFormat() {
   const vector<string> docs = {
     "london is the capital of great britain",
     "i am travelling down the river"
   };
-  const vector<string> queries = { "london", "the" };
+  const vector<string> queries = {"london", "the"};
   const vector<string> expected = {
     "london: {docid: 0, hitcount: 1}",
     Join(' ', vector{
@@ -111,7 +100,7 @@ void TestTop5() {
     "fire and earth"
   };
 
-  const vector<string> queries = { "milk", "water", "rock" };
+  const vector<string> queries = {"milk", "water", "rock"};
   const vector<string> expected = {
     Join(' ', vector{
       "milk:",
@@ -138,7 +127,7 @@ void TestHitcount() {
     "walle",
     "is is is is",
   };
-  const vector<string> queries = { "the", "wall", "all", "is", "the is" };
+  const vector<string> queries = {"the", "wall", "all", "is", "the is"};
   const vector<string> expected = {
     Join(' ', vector{
       "the:",
@@ -188,7 +177,7 @@ void TestRanking() {
     "warsaw is the capital of poland",
   };
 
-  const vector<string> queries = { "moscow is the capital of russia" };
+  const vector<string> queries = {"moscow is the capital of russia"};
   const vector<string> expected = {
     Join(' ', vector{
       "moscow is the capital of russia:",
@@ -245,88 +234,11 @@ void TestBasicSearch() {
   TestFunctionality(docs, queries, expected);
 }
 
-#ifdef LOCAL_LAUNCH
-void TestStress() {
-  fs::path appRoot = fs::path(__FILE__).parent_path();
-  //fs::path filename = appRoot.append("../../../../text_files/The Hobbit.txt");
-  fs::path filename = appRoot.append("../../../../text_files/The Lord of the Rings.txt");
-  ifstream ifs(filename);
-
-  vector<string> docs(Constraints::max_documents);
-  set<string> unique_words_set;
-
-  for (string line; unique_words_set.size() < Constraints::max_unique_words && getline(ifs, line);) {
-    transform(begin(line), end(line), begin(line), [](unsigned char c) {
-      return isalpha(c) ? tolower(c) : ' ';
-      });
-    for (const auto& word_view : SplitBy(line, ' ')) {
-      if (unique_words_set.size() >= Constraints::max_unique_words)
-        break;
-      if (word_view.size() < Constraints::min_word_length || word_view.size() > Constraints::max_word_length)
-        continue;
-      unique_words_set.insert(string(word_view));
-    }
-  }
-
-  ifs.close();
-  ASSERT_EQUAL(unique_words_set.size(), Constraints::max_unique_words);
-
-  vector<string> unique_words_vector(
-    make_move_iterator(begin(unique_words_set)),
-    make_move_iterator(end(unique_words_set))
-  );
-
-  random_device rd;
-  mt19937 gen(rd());
-  uniform_int_distribution<size_t> dis(0, Constraints::max_unique_words - 1);
-  for (size_t i = 0; i < Constraints::max_documents; ++i) {
-
-    docs[i].reserve(Constraints::max_words_per_doc * 
-      (Constraints::min_word_length + Constraints::max_word_length) / 2);
-
-    for (size_t j = 0; j < Constraints::max_words_per_doc; ++j) {
-      size_t index = dis(gen);
-      (docs[i] += ' ') += unique_words_vector[index];
-    }
-  }
-
-  vector<string> queries(Constraints::max_queries);
-  for (size_t i = 0; i < Constraints::max_queries; ++i) {
-    for (size_t j = 0; j < Constraints::max_words_per_query; ++j) {
-      size_t index = dis(gen);
-      (queries[i] += ' ') += unique_words_vector[index];
-    }
-  }
-
-  const vector<string> expected;
-  {
-    istringstream docs_input(Join('\n', docs));
-    istringstream queries_input(Join('\n', queries));
-
-    LOG_DURATION("Stress test ( The Hobbit )");
-
-    SearchServer srv;
-    {
-      LOG_DURATION("UpdateDocumentBase");
-      srv.UpdateDocumentBase(docs_input);
-    }
-    ostringstream queries_output;
-    {
-      LOG_DURATION("AddQueriesStream");
-      srv.AddQueriesStream(queries_input, queries_output);
-    }
-  }
-}
-#endif
-
 int main() {
   TestRunner tr;
-  RUN_TEST(tr, TestSerpFormat); cout << endl;
-  RUN_TEST(tr, TestTop5); cout << endl;
-  RUN_TEST(tr, TestHitcount); cout << endl;
-  RUN_TEST(tr, TestRanking); cout << endl;
-  RUN_TEST(tr, TestBasicSearch); cout << endl;
-#ifdef LOCAL_LAUNCH
-  RUN_TEST(tr, TestStress); cout << endl;
-#endif
+  RUN_TEST(tr, TestSerpFormat);
+  RUN_TEST(tr, TestTop5);
+  RUN_TEST(tr, TestHitcount);
+  RUN_TEST(tr, TestRanking);
+  RUN_TEST(tr, TestBasicSearch);
 }

@@ -1,11 +1,7 @@
 #pragma once
 
 #include "iterator_range.h"
-#ifdef LOCAL_LAUNCH
-#include "profile.h"
-#endif
 
-#include <iostream>
 #include <string_view>
 #include <sstream>
 #include <vector>
@@ -23,6 +19,3 @@ string Join(char c, const Container& cont) {
 
 string_view Strip(string_view s);
 vector<string_view> SplitBy(string_view s, char sep);
-#ifdef LOCAL_LAUNCH
-istream& ReadLine(istream& input, string& s, TotalDuration& dest);
-#endif

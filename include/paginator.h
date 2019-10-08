@@ -1,34 +1,9 @@
 #pragma once
 
+#include "iterator_range.h"
+
 #include <vector>
 using namespace std;
-
-template <typename Iterator>
-class IteratorRange {
-public:
-	IteratorRange(Iterator begin, Iterator end)
-		: first(begin)
-		, last(end)
-		, size_(distance(first, last))
-	{
-	}
-
-	Iterator begin() const {
-		return first;
-	}
-
-	Iterator end() const {
-		return last;
-	}
-
-	size_t size() const {
-		return size_;
-	}
-
-private:
-	Iterator first, last;
-	size_t size_;
-};
 
 template <typename Iterator>
 class Paginator {
@@ -63,9 +38,4 @@ public:
 template <typename C>
 auto Paginate(C& c, size_t page_size) {
 	return Paginator(begin(c), end(c), page_size);
-}
-
-template <typename Container>
-auto Head(Container& c, int top) {
-  return IteratorRange(begin(c), begin(c) + min<size_t>(max(top, 0), c.size()));
 }

@@ -1,65 +1,85 @@
 #include "search_server.h"
 #include "iterator_range.h"
-#include "auxiliary.h"
+#include "paginator.h"
+#include "parse.h"
+#include "synchronized_wrapper.h"
+#include "constraints.h"
 
 #include <algorithm>
+#include <future>
 #include <iterator>
+#include <algorithm>
 #include <string_view>
+#include <deque>
+#include <string>
 #include <sstream>
 #include <iostream>
 
 SearchServer::SearchServer(istream& document_input) {
-  UpdateDocumentBase(document_input);
+  syncIndex.GetAccess().ref_to_value = InvertedIndex{ document_input };
 }
 
 void SearchServer::UpdateDocumentBase(istream& document_input) {
-  InvertedIndex new_index;
-
-  for (string current_document; getline(document_input, current_document); ) {
-    new_index.Add(move(current_document));
-  }
-
-  index = move(new_index);
+  newIndex = async(launch::async, [&] {
+    return InvertedIndex{ document_input };
+    });
 }
 
-void SearchServer::AddQueriesStream(
-  istream& query_input, ostream& search_results_output
+template<class Iterator>
+void SearchServer::AddQueriesStreamSingleThread(
+  IteratorRange<Iterator> query_input, SynchronizedReference<ostream&>& search_results_output
 ) {
+  const auto& constSyncIndex = syncIndex;
+
   TotalDuration _FormResults("Total FormResults");
   TotalDuration _Sort("Total Sort");
-  TotalDuration _VectorResaultsForm("Total Vector Resaults Form");
   TotalDuration _IndexAccessing("Total IndexAccessing");
   TotalDuration _SplitIntoWords("Total SplitIntoWords");
 
-  for (string current_query; getline(query_input, current_query); ) {
-    /*const*/ vector<string_view> words;
-    { // * Разбиение на слова
-      ADD_DURATION(_SplitIntoWords);
-      words = SplitIntoWords(current_query);
-    }
+  vector<pair<size_t, size_t>> docid_count;
+  docid_count.reserve(Constraints::max_documents);
 
-    map<size_t, size_t> docid_count;
-    { // * Обращение к индексу
-      ADD_DURATION(_IndexAccessing);
-      for (const auto& word : words) {
-        for (const size_t docid : index.Lookup(word)) {
-          docid_count[docid]++;
-        }
+  for (auto& current_query : query_input) {
+    if (newIndex.valid()) {
+      auto lock = syncIndex.GetAccess();
+      if (newIndex.valid()) {
+        lock.ref_to_value = newIndex.get();
       }
     }
 
-    vector<pair<size_t, size_t>> search_results;
-    { // * Формирование вектора результатов
-      ADD_DURATION(_VectorResaultsForm);
-      search_results = vector<pair<size_t, size_t>>(docid_count.begin(), docid_count.end());
+    auto lock = constSyncIndex.GetAccess();
+    auto& __syncIndex = lock.ref_to_value;
+
+    if (__syncIndex.DocsCount() != docid_count.size()) {
+      docid_count.resize(__syncIndex.DocsCount());
+    }
+
+    for (size_t i = 0; i < docid_count.size(); ++i) {
+      docid_count[i].first = i;
+      docid_count[i].second = 0;
+    }
+
+    vector<string_view> words;
+    { // * Разбиение на слова
+      ADD_DURATION(_SplitIntoWords);
+      words = SplitBy(current_query, ' ');
+    }
+
+    { // * Обращение к индексу
+      ADD_DURATION(_IndexAccessing);
+      for (const auto& word : words) {
+        for (const auto [docid, rating] : __syncIndex.Lookup(word)) {
+          docid_count[docid].second += rating;
+        }
+      }
     }
 
     { // * Сортировка документов
       ADD_DURATION(_Sort);
       partial_sort(
-        begin(search_results),
-        Head(search_results, top_result_count).end(),
-        end(search_results),
+        begin(docid_count),
+        Head(docid_count, top_result_count).end(),
+        end(docid_count),
         [](pair<size_t, size_t> lhs, pair<size_t, size_t> rhs) {
           int64_t lhs_docid = lhs.first;
           auto lhs_hit_count = lhs.second;
@@ -72,30 +92,73 @@ void SearchServer::AddQueriesStream(
 
     { // * Формирование результата
       ADD_DURATION(_FormResults);
-      search_results_output << current_query << ':';
-      for (auto [docid, hitcount] : Head(search_results, 5)) {
-        search_results_output << " {"
+      auto lock = search_results_output.GetAccess();
+      auto& syncOut = lock.ref_to_value;
+
+      syncOut << current_query << ':';
+      for (auto [docid, hitcount] : Head(docid_count, top_result_count)) {
+        if (hitcount == 0) {
+          break;
+        }
+
+        syncOut << " {"
           << "docid: " << docid << ", "
           << "hitcount: " << hitcount << '}';
       }
-      search_results_output << endl;
+      syncOut << endl;
     }
   }
 }
 
-void InvertedIndex::Add(const string& document) {
-  docs.push_back(document);
+void SearchServer::AddQueriesStream(
+  istream& query_input, ostream& search_results_output)
+{
+  deque<string> queries;
+  for (string current_query; getline(query_input, current_query); ) {
+    queries.push_back(move(current_query));
+  }
 
-  const size_t docid = docs.size() - 1;
-  for (const auto& word : SplitIntoWords(document)) {
-    index[word].push_back(docid);
+  size_t chunks = 8;
+  size_t page_size = max(queries.size() / chunks, static_cast<size_t>(10'000));
+
+  SynchronizedReference<ostream&> syncOStream(search_results_output);
+  vector<future<void>> futures;
+  for (auto page : Paginate(queries, page_size)) {
+    futures.push_back(async(launch::async, [it = this, page, &syncOStream]() {
+      it->AddQueriesStreamSingleThread(page, syncOStream);
+      }));
+  }
+
+  for (auto& _future : futures) {
+    _future.get();
   }
 }
 
-list<size_t> InvertedIndex::Lookup(string_view word) const {
+InvertedIndex::InvertedIndex(istream& stream) {
+
+  for (string current_document; getline(stream, current_document); ) {
+    const size_t docid = docs.size();
+    docs.push_back(move(current_document));
+
+    for (const string_view word : SplitBy(docs.back(), ' ')) {
+      auto& docids = index[word];
+
+      if (!docids.empty() && docids.back().docid == docid) {
+        docids.back().rating++;
+      }
+      else {
+        docids.push_back({ docid, 1 });
+      }
+    }
+  }
+}
+
+const vector<InvertedIndex::Entry>& InvertedIndex::Lookup(string_view word) const {
+  static vector<InvertedIndex::Entry> empty_list;
   if (auto it = index.find(word); it != index.end()) {
     return it->second;
-  } else {
-    return {};
+  }
+  else {
+    return empty_list;
   }
 }

@@ -1,0 +1,7 @@
+сделать первое обновление синхронным
+сделать только 1 обновление базы
+хранить все future в контейнере
+при разрушении класса SearchServer фьючи высбободятся
+запускать асинхронно только 1 метод AddQueries
+
+time limit exceeded: Your implementation of SearchServer works for 1747 ms in average but limit is 1000 ms. Test data: 6 streams of 11000 documents with at most 50 words each, 6 streams of 12000 queries (Time used: 31.44/200.00)

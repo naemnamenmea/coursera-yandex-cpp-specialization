@@ -6,7 +6,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>C:\Users\Andrew\source\repos\Yandex Coursera C++ Specialization\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>LOCAL_KONTROL;INPUT_FILENAME="input.txt";OUTPUT_FILENAME="output.txt";EXPECTED_FILENAME="expected.txt";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>LOCAL_LAUNCH;INPUT_FILENAME="input.txt";OUTPUT_FILENAME="output.txt";EXPECTED_FILENAME="expected.txt";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Optimization>MaxSpeed</Optimization>
       <LanguageStandard>stdcpplatest</LanguageStandard>
     </ClCompile>

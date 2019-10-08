@@ -15,6 +15,26 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="week_6\poiskovaia-sistiema\concurrent_map.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="week_6\poiskovaia-sistiema\iterator_range.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="week_6\poiskovaia-sistiema\parse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="week_6\poiskovaia-sistiema\search_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="week_6\poiskovaia-sistiema\synchronized_wrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="week_6\poiskovaia-sistiema\constraints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="week_6\poiskovaia-sistiema\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -24,22 +44,8 @@
     <ClCompile Include="week_6\poiskovaia-sistiema\search_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="week_6\poiskovaia-sistiema\auxiliary.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="week_6\poiskovaia-sistiema\parse.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="week_6\poiskovaia-sistiema\search_server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="week_6\poiskovaia-sistiema\iterator_range.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="week_6\poiskovaia-sistiema\auxiliary.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <Text Include="week_6\poiskovaia-sistiema\todo.txt" />
   </ItemGroup>
 </Project>

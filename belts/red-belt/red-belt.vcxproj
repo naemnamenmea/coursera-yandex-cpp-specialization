@@ -19,16 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="week_6\poiskovaia-sistiema\auxiliary.cpp" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\concurrent_map.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\constraints.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\iterator_range.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\parse.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\search_server.h" />
+    <ClInclude Include="week_6\poiskovaia-sistiema\synchronized_wrapper.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="week_6\poiskovaia-sistiema\main.cpp" />
     <ClCompile Include="week_6\poiskovaia-sistiema\parse.cpp" />
     <ClCompile Include="week_6\poiskovaia-sistiema\search_server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="week_6\poiskovaia-sistiema\auxiliary.h" />
-    <ClInclude Include="week_6\poiskovaia-sistiema\iterator_range.h" />
-    <ClInclude Include="week_6\poiskovaia-sistiema\parse.h" />
-    <ClInclude Include="week_6\poiskovaia-sistiema\search_server.h" />
+    <Text Include="week_6\poiskovaia-sistiema\todo.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
