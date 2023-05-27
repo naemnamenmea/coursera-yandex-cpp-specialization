@@ -1,0 +1,15 @@
+add_executable(lichnyi_biudzhiet_home_desktop_version)
+set_target_properties(lichnyi_biudzhiet_home_desktop_version PROPERTIES FOLDER "brown-belt/week_5")
+
+file(GLOB TEST_FILES tests/*.cpp)
+file(GLOB SOURCE_FILES *.cpp *.hpp)
+
+target_include_directories(lichnyi_biudzhiet_home_desktop_version PRIVATE .)
+target_sources(lichnyi_biudzhiet_home_desktop_version PUBLIC ${SOURCE_FILES} ${TEST_FILES})
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(lichnyi_biudzhiet_home_desktop_version PUBLIC misc)
+target_link_libraries(lichnyi_biudzhiet_home_desktop_version PUBLIC math)
+target_link_libraries(lichnyi_biudzhiet_home_desktop_version PUBLIC data_structures)
+target_link_libraries(lichnyi_biudzhiet_home_desktop_version PUBLIC my_testing_tools)
